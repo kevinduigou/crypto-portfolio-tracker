@@ -1,0 +1,142 @@
+{% extends "template.html" %}
+
+{%block content%}
+        {% load static %}
+        <script src="{% static 'app.js' %}"></script>
+
+
+                <h1 class="text-center">Portofolio of  {{currentUser}}</h1>
+
+                 {% if numberOfCoinsInPortofolio == 0 %}
+                    <p>There's nothing to display for the moment because your portofolio is empty, you can now add coin to it!</p>
+                {% endif %}
+                <p>
+                    <a href="{% url 'add-coin'%}">
+                     <button type="button" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-plus"></span> Add Coin in Portofolio
+                     </button>
+                        <p></p>
+                    </a>
+                </p>
+
+                 {% if numberOfCoinsInPortofolio != 0  %}
+
+                    <p>Value in dollar for each coin was recorded for the last time at <b class="lastRefreshTime"></b>  on <a href="https://coinmarketcap.com/">Coinmarketcap</a></p>
+                    <p>Conversion one Euro in Dollar: <a href="https://free.currencyconverterapi.com/">{{euroInDollar}} $ </a></p>
+                    <div class="table-responsive">
+                    <table class="table table-striped table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Index</th>
+                                <th>Coin Name</th>
+                                <th>Quantity</th>
+                                <th>Value in $</th>
+                                <th>Value in BTC</th>
+                                <th>Tag</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody
+
+
+                    {%for coin in portofolioOfCurrentUser%}
+                        <tr>
+                            <td>{{coin.index}}</td>
+                            <td><a href="https://coinmarketcap.com/currencies/{{coin.name}}/">{{coin.name}}</a></td>
+                            <td>{{coin.quantity}}</td>
+                            <td>{{coin.valueInDollar |truncatechars:11}} $</td>
+                            <td>{{coin.valueInBTC |truncatechars:11}} BTC</td>
+                            <td>{{coin.tag}}</td>
+                            <td style="width: 160px;">
+                                <a href="{% url 'modify-coin' coin.id %}" class="btn btn-default">Modify</a>
+                                <a href="{% url 'delete-coin' coin.id%}" class="btn btn-default">Delete</a>
+
+                            </td>
+
+
+                        </tr>
+                    </tbody>
+
+                    {% endfor %}
+
+
+                    </table class="table table-striped table-hover">
+
+                    </div>
+
+                    <br>
+
+                    <h2 class="text-center">Summary</h2>
+
+                    <table class="table table-striped table-hover  table-bordered">
+                            <thead>
+                        <tr>
+                            <th>Scope</th>
+                            <th>Total In Dollar</th>
+                            <th>Total In Euro</th>
+                            <th>Total In BTC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            {%for totalSummaryRow in totalSummaryRows%}
+                            <tr>
+                                     <th>{{totalSummaryRow.title}}</th>
+                                    <th>{{totalSummaryRow.totalValueInDollar |truncatechars:11}} $</th>
+                                    <th>{{totalSummaryRow.totalValueInEuro|truncatechars:11}} €</th>
+                                    <th>{{totalSummaryRow.totalValueInBtc|truncatechars:11}} BTC</th>
+                            </tr>
+                            {% endfor %}
+                    </tbody>
+
+
+                    </table>
+                <br></br>
+                <h2 class="text-center">Portofolio Pie Chart</h2>
+                <div id="piechartContainer" style="height: 370px; width: 100%;"></div>
+                <br></br>
+
+                <h2 class="text-center">Evolution through time</h2>
+                <p>Choose the reference currency:
+                <select id="evolThroughTimeRefCoin">
+                    <option class="form-control" value="dollar">Dollar</option>
+                    <option class="form-control" value="bitcoin">BTC</option>
+                </select>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                      <label class="btn btn-secondary active">
+                        <input type="radio" name="options" id="option0" autocomplete="off" checked> ALL
+                      </label>
+                      <label class="btn btn-secondary">
+                        <input type="radio" name="options" id="option1" autocomplete="off"> 1d
+                      </label>
+                      <label class="btn btn-secondary">
+                        <input type="radio" name="options" id="option2" autocomplete="off"> 7d
+                      </label>
+                      <label class="btn btn-secondary">
+                        <input type="radio" name="options" id="option3" autocomplete="off"> 1m
+                      </label>
+                        <label class="btn btn-secondary">
+                        <input type="radio" name="options" id="option4" autocomplete="off"> 3m
+
+                    </div>
+                </p>
+                <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+
+
+
+            {% endif %}
+            <script>
+
+            var lastRefreshData = new Date('{{lastTimeStamp}}');
+            var formattedDate = moment(lastRefreshData).format('YYYY/MM/DD, h:mm:ss a');
+            document.querySelector('.lastRefreshTime').innerHTML = formattedDate;
+
+            </script>
+
+        
+
+        
+        
+
+
+
+{% endblock %}

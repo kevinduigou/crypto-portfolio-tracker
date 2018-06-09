@@ -1,0 +1,22 @@
+{% extends 'template.html' %}
+{% load widget_tweaks %}
+
+
+{% block content %}
+  <div class="container">
+  <h2>Modify {{coinName}}</h2>
+  <form method="post">
+    {% csrf_token %}
+
+    {% for field in form %}
+     <div class="form-group">
+        {{ field.label_tag }}<br>
+        {{ field |add_class:"form-control"}}
+      </div>
+    {% endfor %}
+
+    <button class="btn btn-primary" type="submit">Modify Coin Quantity</button>
+  </form>
+    </div>
+{% endblock %}
+

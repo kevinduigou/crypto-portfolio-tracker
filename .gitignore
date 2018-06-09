@@ -1,0 +1,6 @@
+*.pyc
+__pycache__/
+.idea
+/venc
+cryptoportofolioenv/
+CryptoPortofolioDjango/static/
