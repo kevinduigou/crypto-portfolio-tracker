@@ -32,8 +32,8 @@ window.onload = function() {
         chart.render();
 
     }
-
-    let evolThroughTimeRefCoin  = document.getElementById("evolThroughTimeRefCoin");
+/*  */
+    let evolThroughTimeRefCoin : HTMLSelectElement  = <HTMLSelectElement>document.getElementById("evolThroughTimeRefCoin");
 
     if (evolThroughTimeRefCoin != null)
     {   
@@ -45,11 +45,11 @@ window.onload = function() {
     {
         //Get the scope of the history to display
         var selectedScope = $("input[type='radio']:checked")[0].id;
-        
+        let selectedOption: string = "option0";
         if (evolThroughTimeRefCoin != null)
         {   
         //Get the reference currency for displaying the history chhart
-            var selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
+            selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
         }
 
 

@@ -24,6 +24,7 @@ window.onload = function () {
         }
         chart.render();
     }
+    /*  */
     var evolThroughTimeRefCoin = document.getElementById("evolThroughTimeRefCoin");
     if (evolThroughTimeRefCoin != null) {
         evolThroughTimeRefCoin.addEventListener("change", onSelectionChanged);
@@ -31,9 +32,10 @@ window.onload = function () {
     function onSelectionChanged(event) {
         //Get the scope of the history to display
         var selectedScope = $("input[type='radio']:checked")[0].id;
+        var selectedOption = "option0";
         if (evolThroughTimeRefCoin != null) {
             //Get the reference currency for displaying the history chhart
-            var selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
+            selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
         }
         $.getJSON("/portofolio/historychart", { coinRef: selectedOption, scope: selectedScope }, addChartData);
     }
