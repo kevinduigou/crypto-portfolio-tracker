@@ -9,7 +9,7 @@ if __name__ == "__main__":
     print("Record Coin Prcies in DB starting ...")
 
     # Open The sql Data Base
-    conn = mysql.connector.connect(host="localhost", user="root", password="crakul88*", database="cryptoportofolio")
+    conn = mysql.connector.connect(host="localhost", user="root", password="", database="cryptoportofolio")
     cursor = conn.cursor()
 
     add_currency_info = (
