@@ -13,34 +13,50 @@ window.onload = function () {
                 dataPoints: []
             }]
     });
+    //Feed the Chart    
+    var evolThroughTimeRefCoin = document.getElementById("evolThroughTimeRefCoin");
+    var selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
+    var selectedScope = $("input[type='radio']:checked")[0].id;
+    $.getJSON("/portofolio/historychart", { coinRef: selectedOption, scope: selectedScope }, addChartData);
     function addChartData(data) {
-        chart.options.data[0].dataPoints = [];
+        chart.options.data[0].dataPoints = []; //Reset All previous data in the Chart
         for (var i = 0; i < data.length; i++) {
-            var d = new Date(data[i].x);
+            var d_utc = data[i].x;
+            var d = new Date(d_utc);
             chart.options.data[0].dataPoints.push({
                 y: data[i].y,
                 x: d
             });
         }
+        var loaderElem = $("#loader");
+        if (loaderElem != null) {
+            loaderElem.hide();
+        }
         chart.render();
     }
-    /*  */
-    var evolThroughTimeRefCoin = document.getElementById("evolThroughTimeRefCoin");
+    //When the history chart options changes (Ref Coin or Scope then "onSelectionChanged" is triggered)
     if (evolThroughTimeRefCoin != null) {
         evolThroughTimeRefCoin.addEventListener("change", onSelectionChanged);
     }
-    function onSelectionChanged(event) {
+    var radioButtonInput = $(".btn-group-toggle input:radio");
+    radioButtonInput.on('change', function () {
+        //Trigger an update of the history chart
+        onSelectionChanged();
+    });
+    function onSelectionChanged() {
         //Get the scope of the history to display
         var selectedScope = $("input[type='radio']:checked")[0].id;
-        var selectedOption = "option0";
+        selectedOption = "option0"; //default Option Selected
         if (evolThroughTimeRefCoin != null) {
             //Get the reference currency for displaying the history chhart
             selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
         }
+        var loaderElem = $("#loader");
+        if (loaderElem != null) {
+            loaderElem.show();
+        }
         $.getJSON("/portofolio/historychart", { coinRef: selectedOption, scope: selectedScope }, addChartData);
     }
-    var selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
-    $.getJSON("/portofolio/historychart", { coinRef: selectedOption }, addChartData);
     var pieChart = new CanvasJS.Chart("piechartContainer", {
         animationEnabled: true,
         title: {
@@ -64,8 +80,4 @@ window.onload = function () {
         pieChart.render();
     }
     $.getJSON("/portofolio/piechart", addPieData);
-    $(".btn-group-toggle input:radio").on('change', function () {
-        //Trigger an update of the history chart
-        onSelectionChanged(null);
-    });
 };

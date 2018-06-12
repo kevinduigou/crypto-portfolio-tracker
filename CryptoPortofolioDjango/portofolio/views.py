@@ -175,13 +175,13 @@ def historychart(request):
         elif selectedScope == "option1" and timestamp > timezone.now()-datetime.timedelta(hours=24):
                 timestampsList.append(timestamp)
         elif selectedScope == "option2" and timestamp > timezone.now() - datetime.timedelta(days=7):
-            if (timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0 and timestamp.second < 20:
+            if (timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0:
                 timestampsList.append(timestamp)
-        elif selectedScope == "option3" and timestamp > timezone.now() - datetime.timedelta(months=1):
-            if (timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0 and timestamp.second < 20:
+        elif selectedScope == "option3" and timestamp > timezone.now() - datetime.timedelta(days=30):
+            if (timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0:
                 timestampsList.append(timestamp)
-        elif selectedScope == "option4" and timestamp > timezone.now() - datetime.timedelta(months=3):
-            if timestamp.hour == 12 and timestamp.minute == 0 and timestamp.second < 20:
+        elif selectedScope == "option4" and timestamp > timezone.now() - datetime.timedelta(days=90):
+            if timestamp.hour == 12 and timestamp.minute == 0 :
                 timestampsList.append(timestamp)
     
     coinsInCurrentUserPortfolio = coins.filter(portofolio=current_user_portfolio)
