@@ -15,8 +15,18 @@ window.onload = function() {
         title:{
             text: ""
         },
+        axisX:{
+            crosshair: {
+			enabled: true,
+			snapToDataPoint: true
+        }
+        },
         axisY:{
-            includeZero: false
+            includeZero: false,
+            crosshair: {
+                enabled: true,
+                snapToDataPoint: true
+            }
         },
         data: [{
             type: "spline",
@@ -41,18 +51,25 @@ window.onload = function() {
 
             let d_utc : string = data[i].x;
             let d : Date = new Date(d_utc);
+            
+            var selectedScope = $("input[type='radio']:checked")[0].id;
+
+ 
 
             chart.options.data[0].dataPoints.push({
                 y: data[i].y,
-                x: d
+                x: d,
+                indexLabel: ""
             });
 
         }
         
         var loaderElem = $("#loader");
-        if (loaderElem != null)
+        var historyChartElem = $("#chartContainer")
+        if (loaderElem != null && historyChartElem != null) 
         {
             loaderElem.hide();
+            historyChartElem.show();
         }
 
         chart.render();
@@ -79,20 +96,24 @@ window.onload = function() {
     {
         //Get the scope of the history to display
         var selectedScope = $("input[type='radio']:checked")[0].id;
-        selectedOption = "option0"; //default Option Selected
+        let selectedRefCoin : string = "dollar"; //default Option Selected
         if (evolThroughTimeRefCoin != null)
         {   
-        //Get the reference currency for displaying the history chhart
-            selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
+            //Get the reference currency for displaying the history chhart
+            selectedRefCoin = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
         }
 
         var loaderElem = $("#loader");
+        var historyChartElem = $("#chartContainer")
         if (loaderElem != null)
         {
+            historyChartElem.hide();
             loaderElem.show();
+           
         }
         
-         $.getJSON("/portofolio/historychart",{coinRef: selectedOption,scope : selectedScope}, addChartData);
+
+         $.getJSON("/portofolio/historychart",{coinRef: selectedRefCoin,scope : selectedScope}, addChartData);
     }
 
 

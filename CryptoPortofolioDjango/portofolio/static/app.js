@@ -5,8 +5,18 @@ window.onload = function () {
         title: {
             text: ""
         },
+        axisX: {
+            crosshair: {
+                enabled: true,
+                snapToDataPoint: true
+            }
+        },
         axisY: {
-            includeZero: false
+            includeZero: false,
+            crosshair: {
+                enabled: true,
+                snapToDataPoint: true
+            }
         },
         data: [{
                 type: "spline",
@@ -23,14 +33,18 @@ window.onload = function () {
         for (var i = 0; i < data.length; i++) {
             var d_utc = data[i].x;
             var d = new Date(d_utc);
+            var selectedScope = $("input[type='radio']:checked")[0].id;
             chart.options.data[0].dataPoints.push({
                 y: data[i].y,
-                x: d
+                x: d,
+                indexLabel: ""
             });
         }
         var loaderElem = $("#loader");
-        if (loaderElem != null) {
+        var historyChartElem = $("#chartContainer");
+        if (loaderElem != null && historyChartElem != null) {
             loaderElem.hide();
+            historyChartElem.show();
         }
         chart.render();
     }
@@ -46,16 +60,18 @@ window.onload = function () {
     function onSelectionChanged() {
         //Get the scope of the history to display
         var selectedScope = $("input[type='radio']:checked")[0].id;
-        selectedOption = "option0"; //default Option Selected
+        var selectedRefCoin = "dollar"; //default Option Selected
         if (evolThroughTimeRefCoin != null) {
             //Get the reference currency for displaying the history chhart
-            selectedOption = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
+            selectedRefCoin = evolThroughTimeRefCoin.options[evolThroughTimeRefCoin.selectedIndex].value;
         }
         var loaderElem = $("#loader");
+        var historyChartElem = $("#chartContainer");
         if (loaderElem != null) {
+            historyChartElem.hide();
             loaderElem.show();
         }
-        $.getJSON("/portofolio/historychart", { coinRef: selectedOption, scope: selectedScope }, addChartData);
+        $.getJSON("/portofolio/historychart", { coinRef: selectedRefCoin, scope: selectedScope }, addChartData);
     }
     var pieChart = new CanvasJS.Chart("piechartContainer", {
         animationEnabled: true,
