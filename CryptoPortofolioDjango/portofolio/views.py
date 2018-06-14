@@ -118,16 +118,40 @@ def about(request):
 
 
 @login_required
-def piechart(request,timestamp = None):
+def piechart(request):
+    timestampReq = None
+    if "timestamp" in request.GET.keys():
+        timestampReqAsString = request.GET["timestamp"]
+        timestampReq = datetime.datetime.strptime (timestampReqAsString,"%a %b %d %Y %X %Z%z")
+        
+        if timestampReq.date == datetime.datetime.today().day:
+            #If the user requests to see today PieChart then compute the coins values with the latest values avalaible
+            timestampMaxDict = Curency.objects.all().aggregate(Max('timestamp'))
+            timestampReq = timestampMaxDict['timestamp__max']
+        else :
+            # For value requested in the past (i.e. another day than today), take the value recorded at 13:00 UTC
+            timestampReq = timestampReq.replace(hour=13, minute=00)
 
-   
-
+    
     current_user = request.user
-    if timestamp == None :
+    
+    #In case no timestamp is requested then display the coins repartation with the latest values avalaible for each coin
+    if timestampReq == None :
         timestampMaxDict = Curency.objects.all().aggregate(Max('timestamp'))
-        timestamp = timestampMaxDict['timestamp__max']
+        timestampReq = timestampMaxDict['timestamp__max']
+    
+    currencies = []
+    
+    for currency in Curency.objects.all():
+        if currency.timestamp.year == timestampReq.year and  currency.timestamp.month == timestampReq.month and currency.timestamp.day == timestampReq.day:
+             if currency.timestamp.hour == timestampReq.hour and currency.timestamp.minute == timestampReq.minute:
+                currencies.append(currency)
 
-    currencies = Curency.objects.filter(timestamp = timestamp)
+
+    if len (currencies) == 0:
+        #No Data avalaible to display the PieChart (Date requested is too old?)
+        return JsonResponse({}, safe=False)
+
     coins = Coin.objects.all()
     portofolioOfCurrentUser = [] # Contains data about coins owned by the current user (used to draw the piechart)
     totalValueInDollar = 0
@@ -153,7 +177,7 @@ def piechart(request,timestamp = None):
 def historychart(request):
 
     refCoin = request.GET["coinRef"]
-    selectedScope = "option0" #default Scope
+    selectedScope = "optionAll" #default Scope
     if "scope" in request.GET.keys():
         selectedScope = request.GET["scope"]
 
@@ -169,18 +193,18 @@ def historychart(request):
     #Filter the timestamp which will be used to display the history chart depending on the selected scope
     for currency in currencies.filter(name = 'bitcoin'):
         timestamp = currency.timestamp
-        if selectedScope == "option0":
+        if selectedScope == "optionAll":
             if (timestamp.hour == 12) and timestamp.minute == 0 and  timestamp.second < 20:
                 timestampsList.append(timestamp)
-        elif selectedScope == "option1" and timestamp > timezone.now()-datetime.timedelta(hours=24):
+        elif selectedScope == "option1d" and timestamp > timezone.now()-datetime.timedelta(hours=24):
                 timestampsList.append(timestamp)
-        elif selectedScope == "option2" and timestamp > timezone.now() - datetime.timedelta(days=7):
+        elif selectedScope == "option7d" and timestamp > timezone.now() - datetime.timedelta(days=7):
             if (timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0:
                 timestampsList.append(timestamp)
-        elif selectedScope == "option3" and timestamp > timezone.now() - datetime.timedelta(days=30):
+        elif selectedScope == "option1m" and timestamp > timezone.now() - datetime.timedelta(days=30):
             if (timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0:
                 timestampsList.append(timestamp)
-        elif selectedScope == "option4" and timestamp > timezone.now() - datetime.timedelta(days=90):
+        elif selectedScope == "option3m" and timestamp > timezone.now() - datetime.timedelta(days=90):
             if timestamp.hour == 12 and timestamp.minute == 0 :
                 timestampsList.append(timestamp)
     

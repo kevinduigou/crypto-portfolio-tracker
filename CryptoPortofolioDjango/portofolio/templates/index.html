@@ -92,7 +92,17 @@
                     </table>
                 <br></br>
                 <h2 class="text-center">Portofolio Pie Chart</h2>
+
+                <div class="form-group row">
+                    <label for="portofolioPieChartDatePicker" class="col-sm-1 col-form-label">Date</label>
+                    <div class="col-sm-11">
+                        <input type="text" id="portofolioPieChartDatePicker"></p>
+                    </div>
+                </div>
                 <div id="piechartContainer" style="height: 370px; width: 100%;"></div>
+
+                <p id = "statusPieChart"></p>
+
                 <br></br>
 
                 <h2 class="text-center">Evolution through time</h2>
@@ -101,21 +111,21 @@
                     <option class="form-control" value="dollar">Dollar</option>
                     <option class="form-control" value="bitcoin">BTC</option>
                 </select>
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <div id= "scopeLabels" class="btn-group btn-group-toggle" data-toggle="buttons">
                       <label class="btn btn-secondary active">
-                        <input type="radio" name="options" id="option0" autocomplete="off" checked> ALL
+                        <input type="radio" name="options" id="optionAll" autocomplete="off"  checked>  ALL
                       </label>
                       <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option1" autocomplete="off"> 1d
+                        <input type="radio" name="options" id="option1d" autocomplete="off" > 1d
                       </label>
                       <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option2" autocomplete="off"> 7d
+                        <input type="radio" name="options" id="optiont7d" autocomplete="off" > 7d
                       </label>
                       <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option3" autocomplete="off"> 1m
+                        <input type="radio" name="options" id="option1m" autocomplete="off" > 1m
                       </label>
                         <label class="btn btn-secondary">
-                        <input type="radio" name="options" id="option4" autocomplete="off"> 3m
+                        <input type="radio" name="options" id="option3m" autocomplete="off"> 3m
 
                     </div>
                 </p>

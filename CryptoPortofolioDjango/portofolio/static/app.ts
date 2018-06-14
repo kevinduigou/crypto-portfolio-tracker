@@ -6,10 +6,48 @@ interface PieChartJsonData {
     label: string;
     y: number;}
 
+
+  $( function() {
+    $( "#portofolioPieChartDatePicker" ).datepicker();
+    $( "#portofolioPieChartDatePicker" ).datepicker("setDate", new Date());
+  } );
+
+
+  class HistoryChart extends CanvasJS.Chart
+  {
+      addDataPoints(data : HistoryChartJsonData[])
+      {
+        this.options.data[0].dataPoints = [];
+        for (var i = 0; i < data.length; i++) {
+
+            let d_utc : string = data[i].x;
+            let d : Date = new Date(d_utc);
+            
+            var selectedScope = $("input[type='radio']:checked")[0].id;
+
+ 
+
+            this.options.data[0].dataPoints.push({
+                y: data[i].y,
+                x: d,
+                indexLabel: ""
+            });
+
+        }
+    }
+  }
+  
+
 window.onload = function() {
 
+    $( "#portofolioPieChartDatePicker" ).on('change',function(event){
 
-    let chart = new CanvasJS.Chart("chartContainer", {
+        let date = $( "#portofolioPieChartDatePicker").datepicker("getDate")
+        $.getJSON("/portofolio/piechart",{timestamp: date} ,addPieData);
+    
+      })
+
+    let chart = new HistoryChart("chartContainer", {
         animationEnabled: true,
         theme: "light2",
         title:{
@@ -46,23 +84,7 @@ window.onload = function() {
 
 
     function addChartData(data : HistoryChartJsonData[]) {
-        chart.options.data[0].dataPoints = []; //Reset All previous data in the Chart
-        for (var i = 0; i < data.length; i++) {
-
-            let d_utc : string = data[i].x;
-            let d : Date = new Date(d_utc);
-            
-            var selectedScope = $("input[type='radio']:checked")[0].id;
-
- 
-
-            chart.options.data[0].dataPoints.push({
-                y: data[i].y,
-                x: d,
-                indexLabel: ""
-            });
-
-        }
+        chart.addDataPoints(data)
         
         var loaderElem = $("#loader");
         var historyChartElem = $("#chartContainer")
@@ -83,19 +105,42 @@ window.onload = function() {
         evolThroughTimeRefCoin.addEventListener("change", onSelectionChanged)
     }
     
+    let scopeLabels = document.getElementById("scopeLabels");
     
-    let radioButtonInput = $(".btn-group-toggle input:radio");
-    radioButtonInput.on('change', function() {
-        //Trigger an update of the history chart
-        onSelectionChanged()
+    if (scopeLabels != null)
+    {
+        let optionsLabels = scopeLabels.children;
 
-      })
+        for (let i  = 0; i <  optionsLabels.length; i++)
+    {
+        let radioButton : HTMLLabelElement = <HTMLLabelElement>optionsLabels[i];
+        if (radioButton != null)
+        {
+            radioButton.addEventListener("click",onSelectionChanged);
+        }
+        
+       
+    }
+
+    }
+    
+
+    
+   
+    
 
 
-    function onSelectionChanged()
+    function onSelectionChanged(event : any)
     {
         //Get the scope of the history to display
-        var selectedScope = $("input[type='radio']:checked")[0].id;
+        var selectedScope = event.target.children[0].id;
+        if (event.target.id == "evolThroughTimeRefCoin" )
+        {
+            selectedScope = $("input[type='radio']:checked")[0].id;
+        }
+
+        
+        
         let selectedRefCoin : string = "dollar"; //default Option Selected
         if (evolThroughTimeRefCoin != null)
         {   
@@ -117,7 +162,7 @@ window.onload = function() {
     }
 
 
-    
+
 
 
     let pieChart = new CanvasJS.Chart("piechartContainer", {
@@ -135,17 +180,30 @@ window.onload = function() {
     });
 
     function addPieData(data : PieChartJsonData[]) {
-        for (var i = 0; i < data.length; i++) {
-            pieChart.options.data[0].dataPoints.push({
-                y: data[i].y,
-                label: data[i].label
-            });
+            pieChart.options.data[0].dataPoints = []
+            if (data.length == null)
+            {
+                $("#piechartContainer").hide();
+                $("#statusPieChart").text( "Data not avalaible for this date" )
+            }
+            else
+            {
+                for (var i = 0; i < data.length; i++) {
+                    pieChart.options.data[0].dataPoints.push({
+                        y: data[i].y,
+                        label: data[i].label
+                    });
+        
+                }
+        
+                pieChart.render();
+                $("#statusPieChart").text( "" );
+                $("#piechartContainer").show();
+        
+            }
 
         }
-
-        pieChart.render();
-
-        }
+        
 
     $.getJSON("/portofolio/piechart" ,addPieData);
 
