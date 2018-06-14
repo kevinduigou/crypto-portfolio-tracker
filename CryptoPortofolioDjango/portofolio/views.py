@@ -122,9 +122,10 @@ def piechart(request):
     timestampReq = None
     if "timestamp" in request.GET.keys():
         timestampReqAsString = request.GET["timestamp"]
-        timestampReq = datetime.datetime.strptime (timestampReqAsString,"%a %b %d %Y %X %Z%z")
-        
-        if timestampReq.date == datetime.datetime.today().day:
+        timestampReqAsString = timestampReqAsString.split(" GMT")[0]
+        timestampReq = datetime.datetime.strptime (timestampReqAsString,"%a %b %d %Y %X")
+        print (timestampReq.date(),datetime.datetime.today().date())
+        if timestampReq.date() == datetime.datetime.today().date():
             #If the user requests to see today PieChart then compute the coins values with the latest values avalaible
             timestampMaxDict = Curency.objects.all().aggregate(Max('timestamp'))
             timestampReq = timestampMaxDict['timestamp__max']
