@@ -131,7 +131,7 @@ def piechart(request):
             timestampReq = timestampMaxDict['timestamp__max']
         else :
             # For value requested in the past (i.e. another day than today), take the value recorded at 13:00 UTC
-            timestampReq = timestampReq.replace(hour=13, minute=00)
+            timestampReq = timestampReq.replace(hour=12, minute=00)
 
     
     current_user = request.user
