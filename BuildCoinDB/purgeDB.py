@@ -23,7 +23,7 @@ if __name__ == "__main__":
         time_difference_in_minutes = time_difference / timedelta(minutes=1)
         if time_difference_in_minutes > 60*(24+6): #Security of 6 more hours
             if not((timestamp.hour == 12 or timestamp.hour == 0) and timestamp.minute == 0):
-                print(id,name, timestamp)
+                #print(id,name, timestamp)
                 IDsToDelete.append(id)
 
     for id in IDsToDelete:
