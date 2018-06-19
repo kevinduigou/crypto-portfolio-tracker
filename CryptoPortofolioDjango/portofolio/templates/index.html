@@ -108,8 +108,15 @@
                 <h2 class="text-center">Evolution through time</h2>
                 <p>Choose the reference currency:
                 <select id="evolThroughTimeRefCoin">
-                    <option class="form-control" value="dollar">Dollar</option>
-                    <option class="form-control" value="bitcoin">BTC</option>
+                    <option class="form-control" value="dollar">dollar</option>
+                    <option class="form-control" value="bitcoin">bitcoin</option>
+                    <option class="form-control" value="euro">euro</option>
+                    {%for coin in portofolioOfCurrentUser%}
+                        {% if coin.name != "bitcoin" and  coin.name != "euro" %}
+                        <option class="form-control" value="{{coin.name}}">{{coin.name}}</option>
+                        {% endif %}
+                    {% endfor %}
+
                 </select>
                     <div id= "scopeLabels" class="btn-group btn-group-toggle" data-toggle="buttons">
                       <label class="btn btn-secondary active">

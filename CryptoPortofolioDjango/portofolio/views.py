@@ -221,9 +221,9 @@ def historychart(request):
             currency =   Curency.objects.get(name = coin.name,timestamp = xTimestamp)
             totalValueInDollar += float(currency.valueInDollar) * float(coin.quantity)
 
-        if refCoin == "bitcoin":
-            btcInDollar = Curency.objects.get(name = 'bitcoin',timestamp = xTimestamp).valueInDollar
-            totalPortofoolioValueInDollarByTimeStamps.append({"x":xTimestamp,"y":totalValueInDollar/float(btcInDollar)})
+        if refCoin != "dollar":
+            refCoinInDollar = Curency.objects.get(name = refCoin,timestamp = xTimestamp).valueInDollar
+            totalPortofoolioValueInDollarByTimeStamps.append({"x":xTimestamp,"y":totalValueInDollar/float(refCoinInDollar)})
         else :
             totalPortofoolioValueInDollarByTimeStamps.append({"x": xTimestamp, "y": totalValueInDollar})
 
