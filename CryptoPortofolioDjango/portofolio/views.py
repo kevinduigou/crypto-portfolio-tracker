@@ -119,6 +119,12 @@ def about(request):
 
 @login_required
 def piechart(request):
+
+    #Retrieve Pie Chart to update
+    chartID = "piechartContainer"
+    if "chartID" in request.GET.keys():
+        chartID = request.GET["chartID"]
+
     timestampReq = None
     if "timestamp" in request.GET.keys():
         timestampReqAsString = request.GET["timestamp"]
@@ -148,10 +154,9 @@ def piechart(request):
              if currency.timestamp.hour == timestampReq.hour and currency.timestamp.minute == timestampReq.minute:
                 currencies.append(currency)
 
-
     if len (currencies) == 0:
         #No Data avalaible to display the PieChart (Date requested is too old?)
-        return JsonResponse({}, safe=False)
+        return JsonResponse({"chartID": chartID}, safe=False)
 
     coins = Coin.objects.all()
     portofolioOfCurrentUser = [] # Contains data about coins owned by the current user (used to draw the piechart)
@@ -167,10 +172,12 @@ def piechart(request):
                     totalValueInDollar += coinInfo["valueInDollar"]
 
             portofolioOfCurrentUser.append(coinInfo)
-   
-    piechartData = []
+
+
+
+    piechartData = {"chartID": chartID, "values" : []}
     for coinInfo in portofolioOfCurrentUser:
-        piechartData.append({"y":coinInfo["valueInDollar"]/totalValueInDollar*100 ,"label":coinInfo["name"]})
+        piechartData["values"].append({"y":coinInfo["valueInDollar"]/totalValueInDollar*100 ,"label":coinInfo["name"]})
 
     return JsonResponse(piechartData,safe=False)
 

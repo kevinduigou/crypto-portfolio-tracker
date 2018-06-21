@@ -3,13 +3,21 @@ interface HistoryChartJsonData {
     y: number;}
 
 interface PieChartJsonData {
-    label: string;
-    y: number;}
+    chartID : string ; 
+    values : PieChartJsonValues[];
+    }
 
+interface PieChartJsonValues {
+    label: string;
+    y: number;
+}
 
   $( function() {
     $( "#portofolioPieChartDatePicker" ).datepicker();
     $( "#portofolioPieChartDatePicker" ).datepicker("setDate", new Date());
+
+    $( "#portofolioPieChartDatePickerCompare" ).datepicker();
+    $( "#portofolioPieChartDatePickerCompare" ).datepicker("setDate", new Date());
   } );
 
 
@@ -43,7 +51,14 @@ window.onload = function() {
     $( "#portofolioPieChartDatePicker" ).on('change',function(event){
 
         let date = $( "#portofolioPieChartDatePicker").datepicker("getDate")
-        $.getJSON("/portofolio/piechart",{timestamp: date} ,addPieData);
+        $.getJSON("/portofolio/piechart",{timestamp: date,chartID : "piechartContainer"} ,addPieData);
+    
+      })
+
+      $( "#portofolioPieChartDatePickerCompare" ).on('change',function(event){
+
+        let date = $( "#portofolioPieChartDatePickerCompare").datepicker("getDate")
+        $.getJSON("/portofolio/piechart",{timestamp: date,chartID : "piechartContainerCompare"} ,addPieData);
     
       })
 
@@ -179,33 +194,71 @@ window.onload = function() {
             }]
     });
 
-    function addPieData(data : PieChartJsonData[]) {
-            pieChart.options.data[0].dataPoints = []
-            if (data.length == null)
+    let pieChartCompare = new CanvasJS.Chart("piechartContainerCompare", {
+        animationEnabled: true,
+        title: {
+            text: ""
+        },
+        data: [{
+            type: "pie",
+            startAngle: 240,
+            yValueFormatString: "##0.00\"%\"",
+            indexLabel: "{label} {y}",
+            dataPoints: []
+        }]
+    });
+
+    pieChartCompare.render();
+
+
+    let mapPieCharts : { [id: string]: CanvasJS.Chart; } = { };
+    mapPieCharts["piechartContainer"] = pieChart;
+    mapPieCharts["piechartContainerCompare"] = pieChartCompare;
+
+
+    function addPieData(data : PieChartJsonData) {
+
+            let chartID: string = data.chartID;
+            if (data.values == null)
             {
-                $("#piechartContainer").hide();
-                $("#statusPieChart").text( "Data not avalaible for this date" )
+                $("#status_"+chartID).text( "Data not avalaible for this date" )
+                $("#"+chartID).hide();
+            }
+            let pieChartToUpdate : CanvasJS.Chart;
+
+            let values : PieChartJsonValues[] = data.values;
+            
+
+            pieChartToUpdate = mapPieCharts[chartID] ;
+        
+        
+            pieChartToUpdate.options.data[0].dataPoints = []
+            if (values.length == null)
+            {
+                $("#status_"+chartID).text( "Data not avalaible for this date" )
+                $("#"+chartID).hide();
             }
             else
             {
-                for (var i = 0; i < data.length; i++) {
-                    pieChart.options.data[0].dataPoints.push({
-                        y: data[i].y,
-                        label: data[i].label
+                for (var i = 0; i < values.length; i++) {
+                    pieChartToUpdate.options.data[0].dataPoints.push({
+                        y: values[i].y,
+                        label: values[i].label
                     });
         
                 }
-        
-                pieChart.render();
-                $("#statusPieChart").text( "" );
-                $("#piechartContainer").show();
+                $("#"+chartID).show();
+                $("#status_"+chartID).text( "Data avalaible for this date!" )
+                pieChartToUpdate.render();
+               
         
             }
-
+            
         }
         
 
-    $.getJSON("/portofolio/piechart" ,addPieData);
+    $.getJSON("/portofolio/piechart" ,{chartID : "piechartContainer"},addPieData);
+    $.getJSON("/portofolio/piechart" ,{chartID : "piechartContainerCompare"},addPieData);
 
    
 

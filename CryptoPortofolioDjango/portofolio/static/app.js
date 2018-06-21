@@ -11,6 +11,8 @@ var __extends = (this && this.__extends) || (function () {
 $(function () {
     $("#portofolioPieChartDatePicker").datepicker();
     $("#portofolioPieChartDatePicker").datepicker("setDate", new Date());
+    $("#portofolioPieChartDatePickerCompare").datepicker();
+    $("#portofolioPieChartDatePickerCompare").datepicker("setDate", new Date());
 });
 var HistoryChart = /** @class */ (function (_super) {
     __extends(HistoryChart, _super);
@@ -35,7 +37,11 @@ var HistoryChart = /** @class */ (function (_super) {
 window.onload = function () {
     $("#portofolioPieChartDatePicker").on('change', function (event) {
         var date = $("#portofolioPieChartDatePicker").datepicker("getDate");
-        $.getJSON("/portofolio/piechart", { timestamp: date }, addPieData);
+        $.getJSON("/portofolio/piechart", { timestamp: date, chartID: "piechartContainer" }, addPieData);
+    });
+    $("#portofolioPieChartDatePickerCompare").on('change', function (event) {
+        var date = $("#portofolioPieChartDatePickerCompare").datepicker("getDate");
+        $.getJSON("/portofolio/piechart", { timestamp: date, chartID: "piechartContainerCompare" }, addPieData);
     });
     var chart = new HistoryChart("chartContainer", {
         animationEnabled: true,
@@ -122,23 +128,49 @@ window.onload = function () {
                 dataPoints: []
             }]
     });
+    var pieChartCompare = new CanvasJS.Chart("piechartContainerCompare", {
+        animationEnabled: true,
+        title: {
+            text: ""
+        },
+        data: [{
+                type: "pie",
+                startAngle: 240,
+                yValueFormatString: "##0.00\"%\"",
+                indexLabel: "{label} {y}",
+                dataPoints: []
+            }]
+    });
+    pieChartCompare.render();
+    var mapPieCharts = {};
+    mapPieCharts["piechartContainer"] = pieChart;
+    mapPieCharts["piechartContainerCompare"] = pieChartCompare;
     function addPieData(data) {
-        pieChart.options.data[0].dataPoints = [];
-        if (data.length == null) {
-            $("#piechartContainer").hide();
-            $("#statusPieChart").text("Data not avalaible for this date");
+        var chartID = data.chartID;
+        if (data.values == null) {
+            $("#status_" + chartID).text("Data not avalaible for this date");
+            $("#" + chartID).hide();
+        }
+        var pieChartToUpdate;
+        var values = data.values;
+        pieChartToUpdate = mapPieCharts[chartID];
+        pieChartToUpdate.options.data[0].dataPoints = [];
+        if (values.length == null) {
+            $("#status_" + chartID).text("Data not avalaible for this date");
+            $("#" + chartID).hide();
         }
         else {
-            for (var i = 0; i < data.length; i++) {
-                pieChart.options.data[0].dataPoints.push({
-                    y: data[i].y,
-                    label: data[i].label
+            for (var i = 0; i < values.length; i++) {
+                pieChartToUpdate.options.data[0].dataPoints.push({
+                    y: values[i].y,
+                    label: values[i].label
                 });
             }
-            pieChart.render();
-            $("#statusPieChart").text("");
-            $("#piechartContainer").show();
+            $("#" + chartID).show();
+            $("#status_" + chartID).text("Data avalaible for this date!");
+            pieChartToUpdate.render();
         }
     }
-    $.getJSON("/portofolio/piechart", addPieData);
+    $.getJSON("/portofolio/piechart", { chartID: "piechartContainer" }, addPieData);
+    $.getJSON("/portofolio/piechart", { chartID: "piechartContainerCompare" }, addPieData);
 };
