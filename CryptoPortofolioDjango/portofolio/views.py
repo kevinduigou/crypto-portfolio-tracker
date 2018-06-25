@@ -215,7 +215,13 @@ def historychart(request):
         elif selectedScope == "option3m" and timestamp > timezone.now() - datetime.timedelta(days=90):
             if timestamp.hour == 12 and timestamp.minute == 0 :
                 timestampsList.append(timestamp)
-    
+
+        #Add the latest recorded value in any case
+        if timestamp > timezone.now() - datetime.timedelta(minutes=29):
+            if len(timestampsList) != 0:
+               if (timestamp) != timestampsList[-1]:
+                    timestampsList.append(timestamp)
+
     coinsInCurrentUserPortfolio = coins.filter(portofolio=current_user_portfolio)
     
     
