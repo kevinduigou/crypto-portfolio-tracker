@@ -1,7 +1,22 @@
 import requests
 from bs4 import BeautifulSoup
 import pprint
+import pandas as pd
 
+proxies = {
+        'http': 'http://LWNW7827:crakul88*@www-cache-nrs.si.fr.intraorange:3128',
+        'https': 'https://LWNW7827:crakul88*@www-cache-nrs.si.fr.intraorange:3128'}
+
+def getPricesHistory(coin_name : str):
+    priceDict = {}
+    urlToInspect = []
+
+    url = 'https://coinmarketcap.com/currencies/%s/historical-data/?start=20130428&end=20180610'%(coin_name)
+    r = requests.get(url, proxies=proxies)
+    table = pd.read_html(r.text)[0]
+    table.set_index("Date")
+
+    return table
 
 def getPricesFromCoinMarketCap():
 
@@ -10,7 +25,7 @@ def getPricesFromCoinMarketCap():
 
     urlToInspect = ['http://coinmarketcap.com/',"https://coinmarketcap.com/2"]
     for url in urlToInspect:
-        r = requests.get(url)
+        r = requests.get(url,proxies=proxies)
         soup = BeautifulSoup(r.text,'html.parser')
         prices = soup.findAll("a",class_="price")
         for price in prices:
@@ -23,7 +38,12 @@ def getPricesFromCoinMarketCap():
 
 def getDollarEuroConversion():
     urlSrc = "http://free.currencyconverterapi.com/api/v5/convert?q=EUR_USD&compact=y"
-    r = requests.get(urlSrc)
+    r = requests.get(urlSrc,proxies)
     resp = r.json()
 
     return resp
+
+
+if __name__=="__main__":
+    table = getPricesHistory("bitcoin")["Close**"]
+

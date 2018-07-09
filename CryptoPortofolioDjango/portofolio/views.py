@@ -1,3 +1,5 @@
+import pprint
+
 from django.http import JsonResponse
 
 from .models import Protofolio
@@ -11,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.utils import timezone
 from django.db.models import Max
-
+import json
 import datetime
 from .signupform import SignupForm
 # Create your views here.
@@ -165,11 +167,14 @@ def piechart(request):
 
     for coin in coins:
         if coin.portofolio.owner == current_user:
-            coinInfo = {"name": coin.name, "quantity": coin.quantity,"valueInDollar":"N/A"}
+            coinInfo = {"name": coin.name, "quantity": coin.quantity,"valueInDollar": 0}
             for currency in currencies:
                 if currency.name == coin.name:
-                    coinInfo["valueInDollar"] = float(currency.valueInDollar) * float(coin.quantity)
-                    totalValueInDollar += coinInfo["valueInDollar"]
+                    try :
+                        coinInfo["valueInDollar"] = float(currency.valueInDollar) * float(coin.quantity)
+                        totalValueInDollar += coinInfo["valueInDollar"]
+                    except :
+                        totalValueInDollar += 0
 
             portofolioOfCurrentUser.append(coinInfo)
 
@@ -186,8 +191,11 @@ def historychart(request):
 
     refCoin = request.GET["coinRef"]
     selectedScope = "optionAll" #default Scope
+
+
     if "scope" in request.GET.keys():
         selectedScope = request.GET["scope"]
+
 
     #Find all timestamp avalaible
     currencies = Curency.objects.all()
@@ -202,7 +210,7 @@ def historychart(request):
     for currency in currencies.filter(name = 'bitcoin'):
         timestamp = currency.timestamp
         if selectedScope == "optionAll":
-            if (timestamp.hour == 12) and timestamp.minute == 0 and  timestamp.second < 20:
+            if (timestamp.hour == 12) and timestamp.minute == 0 and  timestamp.second < 20 and timestamp > timezone.now() - datetime.timedelta(days=365) and timestamp.day :
                 timestampsList.append(timestamp)
         elif selectedScope == "option1d" and timestamp > timezone.now()-datetime.timedelta(hours=24):
                 timestampsList.append(timestamp)
@@ -221,18 +229,24 @@ def historychart(request):
             if len(timestampsList) != 0:
                if (timestamp) != timestampsList[-1]:
                     timestampsList.append(timestamp)
+            if len(timestampsList) == 0:
+                timestampsList.append(timestamp)
 
     coinsInCurrentUserPortfolio = coins.filter(portofolio=current_user_portfolio)
     
-    
+    #print("Selected Scope Length: %i"%(len(selectedScope)))
     totalPortofoolioValueInDollarByTimeStamps = []
     for xTimestamp in timestampsList:
         totalValueInDollar = 0
 
         for coin in coinsInCurrentUserPortfolio:
             #Find the value of this coin in Dollar and add the value to th total value of the portofolio
-            currency =   Curency.objects.get(name = coin.name,timestamp = xTimestamp)
-            totalValueInDollar += float(currency.valueInDollar) * float(coin.quantity)
+            #print(coin.name,xTimestamp)
+            try :
+                currency =   Curency.objects.get(name = coin.name,timestamp = xTimestamp)
+                totalValueInDollar += float(currency.valueInDollar) * float(coin.quantity)
+            except :
+                totalValueInDollar += 0
 
         if refCoin != "dollar":
             refCoinInDollar = Curency.objects.get(name = refCoin,timestamp = xTimestamp).valueInDollar
