@@ -3,9 +3,6 @@ from bs4 import BeautifulSoup
 import pprint
 import pandas as pd
 
-proxies = {
-        'http': 'http://LWNW7827:crakul88*@www-cache-nrs.si.fr.intraorange:3128',
-        'https': 'https://LWNW7827:crakul88*@www-cache-nrs.si.fr.intraorange:3128'}
 
 def getPricesHistory(coin_name : str):
     priceDict = {}
